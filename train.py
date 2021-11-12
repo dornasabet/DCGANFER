@@ -11,6 +11,7 @@ import mlflow
 from os.path import join
 import os
 from torchvision.utils import save_image
+from utils import load_checkpoint, save_checkpoint
 
 # mlflow.set_tracking_uri(config.MLFLOW_SOURCE)
 # mlflow.set_experiment(config.MLFLOW_EXP)
@@ -32,7 +33,7 @@ gen.train()
 disc.train()
 
 optimizerD = optim.Adam(disc.parameters(), lr=config.LEARNING_RATE, betas=(0.5, 0.999))
-optimizerG = optim.Adam(gen.parameters(), lr=config.LEARNING_RATE, betas=(0.5, 0.999))
+optimizerG = optim.Adam(gen.paramers(), lr=config.LEARNING_RATE, betas=(0.5, 0.999))
 
 dataset = Dataset_fer(root=config.DATA_DIR, transform=config.TRANSFORM)
 dataloader = DataLoader(dataset, batch_size=config.BATCH_SIZE, shuffle=True, num_workers=config.NUM_WORKERS,
@@ -45,6 +46,11 @@ step = 0
 writer_real = SummaryWriter(f"logs/real")
 writer_fake = SummaryWriter(f"logs/fake")
 writer_loss = SummaryWriter(f"logs")
+
+if config.START_EPOCH:
+    load_checkpoint(config.GEN_CHECKPOINT, gen, optimizerG, config.LEARNING_RATE)
+    load_checkpoint(config.DISC_CHECKPOINT, disc, optimizerD, config.LEARNING_RATE)
+
 for epoch in range(config.NUM_EPOCH):
     for idx, real in enumerate(dataloader):
         real = real.to(config.DEVICE)
@@ -104,3 +110,5 @@ for epoch in range(config.NUM_EPOCH):
     writer_loss.add_scalar("loss_disc_fake", loss_disc_fake, epoch)
     writer_loss.add_scalar("loss_disc", loss_disc, epoch)
     writer_loss.add_scalar("loss_gen", loss_gen, epoch)
+    save_checkpoint(gen, optimizerG, file_name=config.GEN_CHECKPOINT)
+    save_checkpoint(disc, optimizerD, file_name=config.DISC_CHECKPOINT)
