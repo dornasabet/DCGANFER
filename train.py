@@ -7,7 +7,7 @@ import config
 import torch.optim as optim
 import torchvision
 from dataset import Dataset_fer
-import mlflow
+# import mlflow
 from os.path import join
 import os
 from torchvision.utils import save_image
@@ -33,7 +33,7 @@ gen.train()
 disc.train()
 
 optimizerD = optim.Adam(disc.parameters(), lr=config.LEARNING_RATE, betas=(0.5, 0.999))
-optimizerG = optim.Adam(gen.paramers(), lr=config.LEARNING_RATE, betas=(0.5, 0.999))
+optimizerG = optim.Adam(gen.parameters(), lr=config.LEARNING_RATE, betas=(0.5, 0.999))
 
 dataset = Dataset_fer(root=config.DATA_DIR, transform=config.TRANSFORM)
 dataloader = DataLoader(dataset, batch_size=config.BATCH_SIZE, shuffle=True, num_workers=config.NUM_WORKERS,
